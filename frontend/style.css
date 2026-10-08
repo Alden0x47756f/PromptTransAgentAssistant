@@ -73,7 +73,8 @@ button:focus:not(:focus-visible) { outline: 0; }
 .message.assistant .message-body { color: var(--ink); font-size: 17px; line-height: 1.47; letter-spacing: -.374px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .message-body code { font-family: "Cascadia Code", Consolas, monospace; font-size: .9em; background: var(--parchment); padding: 2px 4px; border-radius: 5px; }
 .prompt-block { display: block; margin: 0 0 12px; padding: 16px; background: var(--pearl); border: 1px solid var(--hairline); border-radius: var(--radius-card); font-family: "Cascadia Code", Consolas, monospace; font-size: 14px; line-height: 1.6; letter-spacing: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
-.copy-button { min-height: 32px; padding: 6px 12px; border-radius: var(--radius-pill); background: var(--parchment); color: var(--action); font-size: 12px; line-height: 1.43; letter-spacing: -.12px; }
+.message-actions { display: flex; align-items: center; margin-top: 12px; }
+.copy-button { min-height: 36px; padding: 6px 12px; border-radius: var(--radius-pill); background: var(--parchment); color: var(--action); font-size: 12px; line-height: 1.43; letter-spacing: -.12px; }
 .copy-button:hover { background: var(--divider); }
 .result-note { margin-top: 8px; color: var(--muted); font-size: 12px; line-height: 1.43; }
 .thinking { color: var(--muted); font-size: 14px; line-height: 1.43; animation: pulse 1.4s ease infinite; }

@@ -39,7 +39,7 @@ class SmokeCheck:
                     if not value['connected'] or value['state'] != 'ready':
                         return
                     self.report['webchannel'] = True
-                    self.report['automatic_model_load'] = True
+                    self.report['automatic_backend_enable'] = True
                     self.report['prompt_files'] = True
                     self.stage = 'translate'
                     self.panel.view.page().runJavaScript("document.getElementById('input').value='I have already tested the application. Keep --ctx-size 32768 and q8_0.'; document.getElementById('input').dispatchEvent(new Event('input')); document.getElementById('send').click();")
@@ -56,12 +56,12 @@ class SmokeCheck:
                         raise RuntimeError('Packaged English-to-Chinese check failed')
                     self.report['translation'] = output
                     self.report['reasoning_characters'] = done.get('reasoning_characters', 0)
-                    self.panel.view.page().runJavaScript("document.getElementById('close').click()")
+                    self.panel.view.page().runJavaScript("document.getElementById('collapse').click()")
                     self.stage, self.close_time = 'close', time.monotonic()
             elif self.stage == 'close' and time.monotonic() - self.close_time > .5:
                 if self.panel.isVisible() or not self.ball.isVisible() or c.state != 'ready':
-                    raise RuntimeError('X did not preserve the application and loaded model')
-                self.report['close_preserves_model'] = True
+                    raise RuntimeError('Minimize did not preserve the application and enabled backend')
+                self.report['minimize_preserves_backend'] = True
                 self.report['passed'] = True
                 self.timer.stop()
                 self.bridge.exit()  # the same exit callback used by the context menu

@@ -23,10 +23,10 @@ def main():
     logging.basicConfig(filename=ROOT / 'logs' / 'app.log', level=logging.INFO,
                         format='%(asctime)s %(levelname)s %(name)s %(message)s', encoding='utf-8')
     from PySide6.QtCore import QLockFile
-    from PySide6.QtCore import QTimer
+    from PySide6.QtCore import QTimer, Qt
     from PySide6.QtGui import QIcon
     from PySide6.QtWidgets import QApplication, QMessageBox
-    from app.desktop import Bridge, Panel, FloatingBall
+    QApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
     application = QApplication(sys.argv[:1])
     application.setApplicationName('PromptTransAgentAssistant')
     application.setWindowIcon(QIcon(str(ASSET_ROOT / 'frontend' / 'branding' / 'app.ico')))
@@ -36,6 +36,7 @@ def main():
     if not lock.tryLock(100):
         QMessageBox.information(None, 'Prompt assistant', '应用已经运行。请点击屏幕边缘的 P 悬浮球。')
         return 0
+    from app.desktop import Bridge, Panel, FloatingBall
     try:
         bridge = Bridge()
     except Exception as exc:

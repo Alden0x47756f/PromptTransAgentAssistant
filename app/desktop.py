@@ -6,17 +6,19 @@ import time
 import math
 from pathlib import Path
 
-from PySide6.QtCore import QObject, Signal, Slot, Qt, QUrl, QPoint, QRectF, QPropertyAnimation, QEasingCurve, Property, QTimer
+from PySide6.QtCore import QCoreApplication, QObject, Signal, Slot, Qt, QPoint, QRectF, QPropertyAnimation, QEasingCurve, Property, QTimer
 from PySide6.QtGui import QColor, QPainter, QPen, QPixmap, QGuiApplication, QCursor, QPainterPath, QRegion
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QApplication, QMenu, QFileDialog
-from PySide6.QtWebChannel import QWebChannel
-from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineSettings
-from PySide6.QtWebEngineWidgets import QWebEngineView
 
 from .config import ROOT, ASSET_ROOT
 from .controller import Controller
 
 log = logging.getLogger(__name__)
+
+# WebEngine is imported only when the panel is first opened. Its shared context
+# must still be enabled before QApplication is constructed.
+if QCoreApplication.instance() is None:
+    QCoreApplication.setAttribute(Qt.ApplicationAttribute.AA_ShareOpenGLContexts)
 
 
 class Bridge(QObject):
@@ -28,14 +30,20 @@ class Bridge(QObject):
 
     def __init__(self, config_path=None, secrets_path=None):
         super().__init__()
+        self.frontend_ready = False
+        self.pending_settings = False
         self.controller = Controller(lambda data: self.event.emit(json.dumps(data, ensure_ascii=False)), config_path, secrets_path)
 
     @Slot()
     def initialize(self):
+        self.frontend_ready = True
         self.controller.notify_state()
         if self.controller.startup_error:
             self.event.emit(json.dumps({'type': 'settings_error', 'message': self.controller.startup_error['summary'],
                                         'diagnostic': self.controller.startup_error}, ensure_ascii=False))
+        if self.pending_settings:
+            self.pending_settings = False
+            self.controller.show_settings()
 
     @Slot()
     def loadModel(self):
@@ -68,7 +76,10 @@ class Bridge(QObject):
 
     @Slot()
     def openConfig(self):
-        self.controller.show_settings()
+        if self.frontend_ready:
+            self.controller.show_settings()
+        else:
+            self.pending_settings = True
         self.settingsRequested.emit()
 
     @Slot(str)
@@ -162,16 +173,6 @@ class Bridge(QObject):
         self.moveRequested.emit()
 
 
-class LocalPage(QWebEnginePage):
-    def acceptNavigationRequest(self, url, nav_type, is_main_frame):
-        if url.scheme() in ('file', 'qrc', 'about'):
-            return True
-        return False
-
-    def javaScriptConsoleMessage(self, level, message, line, source):
-        log.info('Frontend %s:%s %s', source, line, message)
-
-
 class Panel(QWidget):
     visibilityChanged = Signal(bool)
 
@@ -182,18 +183,9 @@ class Panel(QWidget):
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.resize(cfg['panel_width'], cfg['panel_height'])
         self.duration = cfg['animation_ms']
-        self.view = QWebEngineView(self)
-        page = LocalPage(self.view)
-        self.view.setPage(page)
-        page.setBackgroundColor(QColor(0, 0, 0, 0))
-        page.settings().setAttribute(QWebEngineSettings.WebAttribute.LocalContentCanAccessRemoteUrls, False)
-        self.channel = QWebChannel(page)
-        self.channel.registerObject('backend', bridge)
-        page.setWebChannel(self.channel)
-        layout = QVBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.view)
-        self.view.load(QUrl.fromLocalFile(str(ASSET_ROOT / 'frontend' / 'index.html')))
+        self._view = None
+        self._layout = QVBoxLayout(self)
+        self._layout.setContentsMargins(0, 0, 0, 0)
         self.animation = QPropertyAnimation(self, b'windowOpacity', self)
         self.animation.setDuration(self.duration)
         self.animation.setEasingCurve(QEasingCurve.Type.OutCubic)
@@ -203,7 +195,16 @@ class Panel(QWidget):
         bridge.collapseRequested.connect(self.collapse)
         bridge.moveRequested.connect(self.begin_drag)
 
+    @property
+    def view(self):
+        if self._view is None:
+            from .webview import create_view
+            self._view, self.channel = create_view(self, self.bridge)
+            self._layout.addWidget(self._view)
+        return self._view
+
     def reveal(self):
+        view = self.view
         self.collapsing = False
         self.animation.stop()
         self.setWindowOpacity(0)
@@ -213,7 +214,7 @@ class Panel(QWidget):
         self.animation.setStartValue(0.0)
         self.animation.setEndValue(1.0)
         self.animation.start()
-        self.view.setFocus()
+        view.setFocus()
 
     def collapse(self):
         if not self.isVisible():

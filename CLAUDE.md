@@ -32,7 +32,9 @@ Use the direct Python command to test source: Start.cmd prefers an existing EXE.
 
 ## Behavior to preserve
 
-Settings replace the content of the current panel. Window close hides the panel; the floating control's explicit right-click Exit ends the application and cleans up its own model process. Keep floating morph animation, hover handling and one-second collapse grace stable.
+Settings replace the content of the current panel. The titlebar has only a minimize button, which hides the panel; the floating control's explicit right-click Exit ends the application and cleans up its own model process. Result copy actions follow the body and any completion note. Keep floating morph animation, hover handling and one-second collapse grace stable.
+
+The native floating control starts without WebEngine. Panel.view creates the browser on first use; settings requests before WebChannel initialization must be replayed once it connects. Preserve the page and draft across later minimizes. UI performance and correctness checks are documented in PERFORMANCE.md.
 
 API model IDs and custom reasoning efforts are opaque service values. Validate syntax and configuration, not model existence with an allowlist. The model-list button checks list connectivity/authentication; actual inference is a separate operation. Map fields according to the selected protocol and endpoint rather than guessing from model names.
 
