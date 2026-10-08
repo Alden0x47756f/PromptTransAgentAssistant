@@ -1,0 +1,51 @@
+# Private settings and encrypted credentials
+config.toml
+config.*.toml
+!config.example.toml
+credentials.json
+credentials*.json
+secrets/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+
+# Local models, runtimes, builds, and test artifacts
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage*
+htmlcov/
+build/
+dist/
+logs/
+test-results/
+models/
+runtime/
+*.exe
+*.dll
+*.gguf
+*.bin
+*.spec
+
+# Backups and editor files
+backups/
+*.bak
+*.old
+*.backup
+*.log
+*.tmp
+.idea/
+.vscode/
+Thumbs.db
+Desktop.ini
+
+# Local publication audit reports
+FORK_REPORT.md
+SANITIZATION_REPORT.md

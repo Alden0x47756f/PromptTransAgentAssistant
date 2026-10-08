@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Prompt studio</title>
+  <link rel="icon" href="branding/app.ico">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+<main class="shell">
+  <header class="titlebar">
+    <div class="wordmark"><img class="mark" src="branding/logo.png" alt="Prompt studio Logo" width="36" height="36" draggable="false"><span>Prompt studio<span class="edition">LOCAL EDITION</span></span></div>
+    <div class="window-actions">
+      <button id="collapse" class="icon" title="收起对话" aria-label="收起对话">−</button>
+      <button id="close" class="icon" title="关闭对话窗口" aria-label="关闭对话窗口">×</button>
+    </div>
+  </header>
+  <div id="chat-view" class="view chat-view">
+  <section class="model-bar" aria-label="模型状态">
+    <div><div class="model-name"><span id="status-dot" class="status-dot"></span><span id="model-label">本地模型</span><span id="model-badge" class="model-size">本地</span></div><div id="status" class="status" aria-live="polite">连接应用中…</div></div>
+    <button id="model-toggle" class="toggle" role="switch" aria-checked="false" aria-label="加载或卸载模型" disabled><span></span></button>
+  </section>
+  <section id="conversation" class="conversation" aria-label="对话记录">
+    <div id="messages"></div>
+  </section>
+  <div id="notice" class="notice" role="status" hidden></div>
+  <footer class="composer-area">
+    <div class="composer">
+      <label class="sr-only" for="input">输入需求</label>
+      <textarea id="input" rows="3" placeholder="输入中文或英文…" spellcheck="false"></textarea>
+      <div class="composer-bottom"><span id="input-hint">先打开右上角的模型开关</span><button id="send" class="send" aria-label="发送需求" disabled><svg class="send-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 12 6-6 6 6M12 6v11"/></svg><svg class="send-stop-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="7" y="7" width="10" height="10" rx="1.5"/></svg></button></div>
+    </div>
+    <div class="footer-line"><div><button id="new-chat" class="text-button">＋ 新对话</button><span class="separator">/</span><button id="config" class="text-button">配置</button></div></div>
+  </footer>
+  </div>
+  <section id="settings-view" class="view settings-view" aria-label="设置" hidden>
+    <div class="settings-heading"><button id="settings-back" class="text-button" type="button"><svg class="back-arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m11 6-6 6 6 6M5 12h12"/></svg><span>返回对话</span></button><h1>设置</h1></div>
+    <div class="mode-switch" role="group" aria-label="推理方式"><button id="mode-local" type="button" aria-pressed="true">本地模型</button><button id="mode-api" type="button" aria-pressed="false">API</button></div>
+    <form id="settings-form" class="settings-scroll" novalidate>
+      <fieldset id="local-fields" class="settings-card">
+        <legend>本地模型</legend>
+        <label class="field">GGUF 模型文件<span class="path-input"><input id="setting-model_path" data-field="model_path" type="text" maxlength="4096"><button id="browse-model" type="button" class="small-button">选择</button></span></label>
+        <label class="field">llama 引擎文件<span class="path-input"><input id="setting-engine_path" data-field="engine_path" type="text" maxlength="4096"><button id="browse-engine" type="button" class="small-button">选择</button></span></label>
+        <div class="field-grid">
+          <label class="field">温度<input id="setting-temperature" data-field="temperature" data-kind="float" inputmode="decimal" type="text"></label>
+          <label class="field">上下文容量<input id="setting-context_size" data-field="context_size" data-kind="int" inputmode="numeric" type="text"></label>
+          <label class="field">最大输出 tokens<input id="setting-max_tokens" data-field="max_tokens" data-kind="int" inputmode="numeric" type="text"></label>
+          <label class="field">top_k<input id="setting-top_k" data-field="top_k" data-kind="int" inputmode="numeric" type="text"></label>
+          <label class="field">top_p<input id="setting-top_p" data-field="top_p" data-kind="float" inputmode="decimal" type="text"></label>
+          <label class="field">本地思考<select id="setting-reasoning" data-field="reasoning"><option value="">未设置</option><option value="on">开启</option><option value="off">关闭</option></select></label>
+          <label class="field">K Cache dtype<select id="setting-cache_type_k" data-field="cache_type_k"></select></label>
+          <label class="field">V Cache dtype<select id="setting-cache_type_v" data-field="cache_type_v"></select></label>
+        </div>
+        <label class="field">思考预算<input id="setting-reasoning_budget" data-field="reasoning_budget" data-kind="int" inputmode="numeric" type="text"><span class="field-help">-1 不额外限制；0 结束思考。思考与正文共用输出额度。</span></label>
+        <p class="field-help">采样参数从下一次生成生效。已启用模型的文件、上下文或 KV 配置变更，会在保存后重载。</p>
+      </fieldset>
+      <fieldset id="api-fields" class="settings-card" hidden>
+        <legend>API 服务</legend>
+        <label class="field">协议<select id="setting-api_protocol" data-field="api_protocol"><option value="openai">OpenAI 兼容协议</option><option value="anthropic">Anthropic 兼容协议</option></select></label>
+        <label class="field">base_url<input id="setting-api_base_url" data-field="api_base_url" type="text" maxlength="2048" spellcheck="false"></label>
+        <label class="field">鉴权方式<select id="setting-api_auth_mode" data-field="api_auth_mode"><option value="protocol">按协议默认</option><option value="bearer">Authorization: Bearer</option><option value="x-api-key">x-api-key</option><option value="api-key">api-key</option></select></label>
+        <label class="field">API Key<span class="path-input"><input id="setting-api_key" data-field="api_key" type="password" maxlength="4096" autocomplete="off" spellcheck="false"><button id="key-visible" type="button" class="small-button" aria-pressed="false">显示</button></span><span id="key-status" class="field-help">尚未保存密钥</span></label>
+        <button id="key-clear" type="button" class="text-button" disabled>清除该地址已保存密钥</button>
+        <label class="field">模型名称<input id="setting-api_model" data-field="api_model" type="text" list="api-models" maxlength="256" spellcheck="false"><span class="field-help">可自由填写，模型列表只提供建议，不限制手动输入。</span></label>
+        <datalist id="api-models"></datalist>
+        <div class="api-tools"><button id="api-model-list" type="button" class="small-button">获取模型列表并测试连接</button></div>
+        <p class="field-help">一次请求流程获取模型列表并验证连接与鉴权；模型与思考参数是否支持，以实际调用结果为准。</p>
+        <label class="field">思考强度<span id="effort-combobox" class="effort-input-row"><input id="setting-api_reasoning_effort" data-field="api_reasoning_effort" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="effort-options" maxlength="128" spellcheck="false" autocomplete="off"><button id="effort-toggle" class="effort-toggle" type="button" aria-label="显示思考强度等级"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m7 10 5 5 5-5"/></svg></button></span><span class="field-help">可选择等级或自由输入；auto 使用服务默认，其他值原样传递。</span></label>
+        <label class="field">最大输出 tokens<input id="setting-api_max_tokens" data-field="api_max_tokens" data-kind="int" inputmode="numeric" type="text"></label>
+        <div id="openai-fields">
+          <label class="field">OpenAI 接口<select id="setting-api_endpoint" data-field="api_endpoint"><option value="chat">Chat Completions</option><option value="responses">Responses</option></select></label>
+          <label id="token-field-row" class="field">Chat 输出字段<select id="setting-api_token_field" data-field="api_token_field"><option value="max_tokens">max_tokens</option><option value="max_completion_tokens">max_completion_tokens</option></select><span class="field-help">按服务要求选择；应用不根据模型名猜测字段。</span></label>
+        </div>
+        <div id="anthropic-fields" hidden>
+          <label class="field">Anthropic 思考模式<select id="setting-api_thinking_mode" data-field="api_thinking_mode"><option value="auto">服务默认</option><option value="off">关闭（disabled）</option><option value="adaptive">自适应（adaptive）</option><option value="budget">指定预算（enabled）</option></select></label>
+          <label id="thinking-budget-row" class="field" hidden>思考 token 预算<input id="setting-api_thinking_budget" data-field="api_thinking_budget" data-kind="int" inputmode="numeric" type="text"><span class="field-help">默认 1024；具体预算限制交由服务端校验。</span></label>
+        </div>
+      </fieldset>
+      <div class="settings-card">
+        <label class="check-field"><input id="setting-auto_load" data-field="auto_load" type="checkbox">启动时自动启用所选推理方式</label>
+        <div class="prompt-tools"><button id="edit-system" type="button" class="text-button">编辑 System Prompt</button><button id="edit-user" type="button" class="text-button">编辑 User Prompt</button></div>
+      </div>
+    </form>
+    <div class="settings-actions"><span id="settings-message" role="status" aria-live="polite"></span><button id="settings-stop" class="small-button" type="button" hidden>停止当前生成</button><button id="settings-save" class="primary-button" type="button">保存设置</button></div>
+  </section>
+  <div id="effort-options" class="effort-options" role="listbox" aria-label="思考强度等级" hidden></div>
+  <div id="modal-layer" class="modal-layer" hidden>
+    <section class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
+      <h2 id="modal-title"></h2><p id="modal-message"></p><ul id="modal-items" hidden></ul>
+      <details id="modal-details" hidden><summary>技术详情</summary><pre id="modal-diagnostic"></pre></details>
+      <div id="modal-tools" class="modal-tools" hidden><button id="diagnostic-copy" type="button" class="text-button">复制诊断信息</button><button id="diagnostic-logs" type="button" class="text-button">打开日志</button></div>
+      <div class="modal-actions"><button id="modal-cancel" type="button" class="small-button">返回修改</button><button id="modal-confirm" type="button" class="primary-button">确认</button></div>
+    </section>
+  </div>
+</main>
+<script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+<script src="settings.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

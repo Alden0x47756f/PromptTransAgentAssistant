@@ -1,0 +1,6 @@
+* text=auto eol=lf
+*.cmd text eol=crlf
+# Preserve the two user-approved prompt files byte for byte.
+prompts/*.md -text
+*.png binary
+*.ico binary
