@@ -20,7 +20,7 @@
 
 ## 下载与运行
 
-从 [Releases](https://github.com/NanamiDoko/PromptTransAgentAssistant/releases) 下载 Windows 压缩包，解压到可写目录，再运行 `PromptTransAgentAssistant.exe`。EXE 版本不需要安装 Python，请保留同目录下的 `prompts/` 文件夹。
+从 [Releases](https://github.com/Alden0x47756f/PromptTransAgentAssistant/releases) 下载 Windows 压缩包，解压到可写目录，再运行 `PromptTransAgentAssistant.exe`。EXE 版本不需要安装 Python，请保留同目录下的 `prompts/` 文件夹。
 
 应用面向 Windows 10 / 11 x64。本地推理还需要自行准备 GGUF 模型、支持该模型的 `llama-server.exe` 及其配套运行库；使用 CUDA 引擎时需要对应的 NVIDIA 驱动。模型、引擎和模型权重不随本项目分发。资源占用取决于模型、量化方式、上下文、KV Cache 类型和硬件。
 
@@ -33,7 +33,7 @@
 安装 Python 3.11 x64，然后在项目目录执行：
 
 ```powershell
-git clone https://github.com/NanamiDoko/PromptTransAgentAssistant.git
+git clone https://github.com/Alden0x47756f/PromptTransAgentAssistant.git
 cd PromptTransAgentAssistant
 .\Setup.cmd
 .\Start.cmd
