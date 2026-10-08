@@ -2,27 +2,25 @@
 
 <img src="frontend/branding/logo.png" alt="PromptTransAgentAssistant 的 P 标志" width="96" />
 
-一个轻量的 Windows 悬浮提示词助手：把中文需求整理为英文 Prompt，把英文内容翻译为中文。支持本地 GGUF 模型和兼容 OpenAI / Anthropic 协议的 API。
+一个 Windows 悬浮提示词助手：用于把中文需求整理为英文 Prompt，喂给某些中文理解能力不佳的模型，或者使用中文就容易触发账号风控的模型，把英文内容翻译为中文。支持本地 GGUF 模型和兼容 OpenAI / Anthropic 协议的 API。
 
 *A floating Windows assistant for Chinese–English prompt translation and refinement, powered by local models or compatible APIs.*
 
 ## 功能
 
-- 白色悬浮条贴靠屏幕边缘；悬停变为圆球，点击展开对话，支持拖动和左右吸附。
-- 对话与设置在同一个窗口切换；展开期间保持圆球，收起后等待 1 秒再变回悬浮条。
 - 本地模型 / API 模式切换，以及启用 / 停用滑块；切换进行中显示等待状态。
-- 独立的 System Prompt 和 User Prompt Markdown 文件，便于自行编辑。
+- 内置了独立的 System Prompt 和 User Prompt Markdown 文件，支持自行编辑。
 - 可配置本地采样、上下文、输出长度、KV Cache 类型及模型 / 引擎位置。
 - 支持任意 API 模型名称和自定义思考强度，密钥通过 Windows DPAPI 加密持久化。
 - 保存时校验格式；缺失参数提示将采用的默认值；加载和调用失败提供诊断弹窗。
-- 结果下方提供“复制结果”，长回复无需返回顶部；标题栏只保留收起按钮。
+- 模型输出结果下方提供“复制结果”，长回复无需返回顶部；标题栏只保留收起按钮。
 - 首次展开时才创建网页界面，降低启动阶段的界面内存占用。
 
 ## 下载与运行
 
 从 [Releases](https://github.com/Alden0x47756f/PromptTransAgentAssistant/releases) 下载 Windows 压缩包，解压到可写目录，再运行 `PromptTransAgentAssistant.exe`。EXE 版本不需要安装 Python，请保留同目录下的 `prompts/` 文件夹。
 
-应用面向 Windows 10 / 11 x64。本地推理还需要自行准备 GGUF 模型、支持该模型的 `llama-server.exe` 及其配套运行库；使用 CUDA 引擎时需要对应的 NVIDIA 驱动。模型、引擎和模型权重不随本项目分发。资源占用取决于模型、量化方式、上下文、KV Cache 类型和硬件。
+应用面向 Windows 10 / 11 x64。本地推理需要自行准备 GGUF 模型、支持该模型的 `llama-server.exe` 及其配套运行库；使用 CUDA 引擎时需要对应的 NVIDIA 驱动。模型、引擎和模型权重不随本项目分发。资源占用取决于模型、量化方式、上下文、KV Cache 类型和硬件。
 
 首次运行会在程序旁创建 `config.toml`，仅在文件不存在时创建，已有设置不会被覆盖。默认启用本地模型自动加载；未准备默认文件时会显示诊断，请进入“配置”选择自己的文件或切换到 API。
 
