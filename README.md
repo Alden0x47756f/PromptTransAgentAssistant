@@ -117,7 +117,7 @@ API Key 存储在当前 Windows 用户的 `%LOCALAPPDATA%\PromptTransAgentAssist
 
 `Build.cmd` 使用 PyInstaller 生成带图标的窗口模式 EXE。分发时将 EXE 与 `prompts/` 放在同一目录；可附上 `config.example.toml` 和图标刷新助手，但不要打包个人 `config.toml`、凭据、模型、日志或旧构建。
 
-v1.0.1 发布准备中的 Windows 本地测试结果为 **82 passed、3 skipped**。API 测试使用本地 HTTP 模拟服务验证请求结构、鉴权与错误处理，没有调用付费 API；默认跳过实际 GPU / 模型测试。准备自己的模型和引擎后，可在个人配置下执行 `python -m pytest -q --run-model`，该命令会启动真实模型并占用计算资源。界面资源测量与复现方式见 [PERFORMANCE.md](PERFORMANCE.md)。
+默认跳过实际 GPU / 模型测试。准备自己的模型和引擎后，可在个人配置下执行 `python -m pytest -q --run-model`，该命令会启动真实模型并占用计算资源。界面资源测量与复现方式见 [PERFORMANCE.md](PERFORMANCE.md)。
 
 | 路径 | 职责 |
 | --- | --- |
